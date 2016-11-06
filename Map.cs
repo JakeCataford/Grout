@@ -1,90 +1,65 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Grout
 {   
     [CreateAssetMenu(fileName="New Grout Map", menuName="Grout/Map")]
     public class Map : ScriptableObject {
+        public delegate void OnTileUpdateHandler(MapTile newTile, int layer, int x, int y);
+        public event OnTileUpdateHandler OnTileUpdate;
+
+        public delegate void OnMapEventHandler();
+        public event OnMapEventHandler OnMapResize;
+
         public enum Planes {
             XZ,
             XY
         }
         
         public Planes Plane = Planes.XZ;
+        public int TileScale = 1;
         
-        [System.Serializable]
-        public class TileArray {
-            public TileArray(int size) {
-                Tiles = new Tile[size];
-                for(int i = 0; i < size; i++) {
-                    Tiles[i] = new Tile();   
-                } 
-            }
-            
-            public Tile[] Tiles;
-            public Tile this[int key] {
-                get {
-                    return Tiles[key];
-                }
-                
-                set {
-                    Tiles[key] = value;
-                }
-            }
-        }
-        
-        private int tileScale = 1;
-        private TileArray[] tiles;
-        
-        private int _sizeX;
+        public List<MapLayer> Layers = new List<MapLayer>();
+        public MapLayer EventLayer;
+
+        private int _sizeX = 10;
         public int SizeX { get { return _sizeX; } }
-        private int _sizeY;
+        private int _sizeY = 10;
         public int SizeY { get { return _sizeY; } }
 
-        
-        public void CreateInstance() {
-            
-        }
-        
         public void Resize(int sizeX, int sizeY) {
-            CleanPreview();
             _sizeX = SizeX;
             _sizeY = SizeY;
-            tiles = new TileArray[SizeX];
-            for(int i = 0; i < tiles.Length; i++) {
-                tiles[i] = new TileArray(SizeY);
+            foreach(MapLayer layer in Layers) {
+                layer.Resize();
             }
+
+            EventLayer.Resize();
+            if (OnMapResize != null) OnMapResize();
+        }
+          
+        public void AddLayer() {
+            Layers.Add(new MapLayer(this));
+            if (OnMapResize != null) OnMapResize();
         }
         
-        public void RenderPreview() {
-            for(int i = 0; i < _sizeX; i ++) {
-                for(int j = 0; j < _sizeY; j ++) {
-                    foreach(ITileProperty property in tiles[i][j].Properties) {
-                        property.OnTilePreview(tileWorldPosition(i, j));
-                    }
-                }
+        public bool IsSpaceOccupied(int x, int y) {
+            foreach(MapLayer layer in Layers) {
+                if (layer.Tiles[x][y] != null)  return true;
             }
+
+            return false;
+        }
+
+        public void UpdateTile(Tile newTile, int layer, int x, int y, int rotation = 0) {
+            Layers[layer].Tiles[x][y] = new MapTile(newTile, rotation);
+            if (OnTileUpdate != null) OnTileUpdate(Layers[layer].Tiles[x][y], layer, x, y);
         }
         
-        private Vector3 tileWorldPosition(int x, int y) {
-            switch (Plane) {
-                case Planes.XY:
-                    return new Vector3(x * tileScale, y * tileScale, 0);
-                case Planes.XZ:
-                    return new Vector3(x * tileScale, 0, y * tileScale);
-                default:
-                   return Vector3.zero;
-            }
-        }
-        
-        private void CleanPreview() {
-            foreach(TileArray tileArray in tiles) {
-                foreach(Tile tile in tileArray.Tiles) {
-                    foreach(ITileProperty property in tile.Properties) {
-                        property.OnTilePreviewHide();
-                    }
-                }
-            }
+        public void RotateTile(int layer, int x, int y) {
+            if (Layers[layer].Tiles[x][y] == null) return;
+            Layers[layer].Tiles[x][y].Rotation = (Layers[layer].Tiles[x][y].Rotation + 1) % 4;
+            if (OnTileUpdate != null) OnTileUpdate(Layers[layer].Tiles[x][y], layer, x, y);
         }
     }
 }
