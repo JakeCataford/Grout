@@ -37,11 +37,12 @@ public class GroutMapPainter
 
         if (type == EventType.MouseDown)
         {
-            SelectedMap.UpdateTile(SelectedTile, SelectedLayer, selectedTileIndex.x, selectedTileIndex.y, Rotation);
+            SelectedMap.UpdateTile(e.functionKey ? null : SelectedTile, SelectedLayer, selectedTileIndex.x, selectedTileIndex.y, Rotation);
             mouseIsDown = true;
-            GUIUtility.hotControl = id;
+            
             if (focused)
             {
+                GUIUtility.hotControl = id;
                 e.Use();
             }
         }
@@ -67,7 +68,7 @@ public class GroutMapPainter
             
             if (lastTileIndex != selectedTileIndex)
             {
-                SelectedMap.UpdateTile(SelectedTile, SelectedLayer, selectedTileIndex.x, selectedTileIndex.y, Rotation);
+                SelectedMap.UpdateTile(e.functionKey ? null : SelectedTile, SelectedLayer, selectedTileIndex.x, selectedTileIndex.y, Rotation);
             }
             
             if (focused)
@@ -85,7 +86,7 @@ public class GroutMapPainter
         }
 
         Handles.BeginGUI();
-        GUI.Label(new Rect(0, 0, 400, 100), "Click/Drag To Paint\nSpace to rotate tile\nCurrent Tile Rotation: " + (Rotation * 90));
+        GUI.Label(new Rect(0, 0, 400, 100), "Click/Drag To Paint\nSpace to rotate tile\nX To Delete\nCurrent Tile Rotation: " + (Rotation * 90));
         Handles.EndGUI();
     }
 

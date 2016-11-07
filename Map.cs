@@ -50,9 +50,18 @@ namespace Grout
 
             return false;
         }
+        
+        public bool IsSpaceWalkable(int x, int y) {
+             foreach(MapLayer layer in Layers) {
+                if (layer.Tiles[x][y] != null && layer.Tiles[x][y].Tile != null && layer.Tiles[x][y].Tile.Walkable)  return true;
+            }
 
-        public void UpdateTile(Tile newTile, int layer, int x, int y, int rotation = 0) {
+            return false;
+        }
+
+        public void UpdateTile(Tile newTile, int layer, int x, int y, int rotation = 0) {  
             Layers[layer].Tiles[x][y] = new MapTile(newTile, rotation);
+
             if (OnTileUpdate != null) OnTileUpdate(Layers[layer].Tiles[x][y], layer, x, y);
         }
         

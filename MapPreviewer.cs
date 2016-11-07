@@ -9,7 +9,7 @@ namespace Grout
         
         public override GameObject CreateContainer() {
             GameObject go = new GameObject("Map Preview");
-            go.hideFlags = HideFlags.HideAndDontSave;
+            go.hideFlags = HideFlags.DontSave;
             return go;
         }
     }

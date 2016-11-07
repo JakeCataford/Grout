@@ -61,12 +61,18 @@ public class GroutMapEditor : EditorWindow {
     }
 
     private void OnGUI() {
+        GUI.skin = groutSkin;
+
         if (AvailableMaps.Count == 0) {
             GUILayout.Label("Create a map in a resources folder to begin");
             return;
         }
         
-        GUI.skin = groutSkin;
+        if (EditorApplication.isPlayingOrWillChangePlaymode) {
+            GUILayout.Label("Exit play mode to edit maps");
+            return;
+        }
+        
         EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
         GUILayout.Label("Grout Map Editor");
         EditorGUILayout.EndVertical();
@@ -85,10 +91,7 @@ public class GroutMapEditor : EditorWindow {
         }
         EditorGUILayout.EndHorizontal();
         
-        if (CurrentMap == null) {
-            RefreshMaps();
-            CurrentMap = AvailableMaps.First();
-        }
+        if (CurrentMap == null) return;
 
         EditorGUILayout.BeginHorizontal();
         CurrentMap.Plane = (Grout.Map.Planes) EditorGUILayout.EnumPopup("Map Plane", CurrentMap.Plane);
@@ -252,7 +255,6 @@ public class GroutMapEditor : EditorWindow {
                 };
 
                 Color internalColor = CurrentMap.IsSpaceOccupied(i, j) ? new Color(0, 0.5f, 0.8f, 0.001f) : new Color(0, 0.5f, 0.8f, 0.1f);
-
                 Handles.DrawSolidRectangleWithOutline(verts, internalColor, new Color(0, 0.3f, 0.5f, 0.1f));
             }
         }

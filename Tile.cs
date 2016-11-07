@@ -6,8 +6,9 @@ namespace Grout
     public class Tile : ScriptableObject
     {
         public string Category = "default";
+        public Event[] Events;
         public bool PlaceOnEventLayer = false;
-        public bool PlaceOnBaseLayer = false;
+        public bool Walkable = true;
         public GameObject Renderable;
 
         public virtual GameObject GetRenderable()

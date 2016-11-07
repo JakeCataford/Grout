@@ -61,10 +61,17 @@ namespace Grout
         }
 
         public void Update(MapTile tile, int layer, int x, int y) {
+            if (Container == null) {
+                Debug.LogWarning("Tried to update but container was not present, aborting...");
+                return;
+            }
+            
             if (rendered[layer][x][y] != null) {
                 GameObject.DestroyImmediate(rendered[layer][x][y]);
             }
             
+            if (tile == null || tile.Tile == null) return;
+
             GameObject go = GameObject.Instantiate(tile.Tile.Renderable);
             go.transform.SetParent(Container.transform);
             go.transform.localRotation = Quaternion.Euler(0, 90 * tile.Rotation, 0);
